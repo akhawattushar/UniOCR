@@ -17,6 +17,12 @@ venv/
 .venv/
 ENV/
 
+# Test image uploads
+*.jpg
+*.jpeg
+*.png
+*.pdf
+
 # System / IDE
 .vscode/
 .idea/
