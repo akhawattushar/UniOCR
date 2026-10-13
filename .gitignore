@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyTorch large model checkpoints (>100MB exceeds GitHub push limit)
+# Note: Share 'models/ocr_universal_model.pth' via GitHub Releases, Google Drive, or Hugging Face.
+models/*.pth
+models/*.pt
+models/.cache/
+*.pth
+*.pt
+
+# Virtual environments
+env/
+venv/
+.venv/
+ENV/
+
+# System / IDE
+.vscode/
+.idea/
+*.swp
+*.DS_Store
+Thumbs.db
