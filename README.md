@@ -1,4 +1,4 @@
-# Universal AI OCR Engine
+# UniOCR - Universal AI OCR Engine
 
 <p align="center">
   <b>High-Precision Offline Neural OCR Engine & Enterprise Document Web Dashboard</b>
@@ -16,9 +16,9 @@
 
 ## Overview
 
-**Universal AI OCR Engine** is a high-accuracy, self-contained Optical Character Recognition system designed for real-world documents, mobile screenshots, multi-page PDFs, and synthetic bitmap text.
+**UniOCR** is a high-accuracy, self-contained Optical Character Recognition system designed for real-world documents, mobile screenshots, multi-page PDFs, and synthetic bitmap text.
 
-Unlike basic OCR scripts that require active internet connections or multi-gigabyte models, this engine packages both **deep detection (CRAFT)** and **character recognition (CRNN)** into a **single, portable model file** with an intelligent **hybrid vocabulary correction layer** that brings word accuracy to **93–95%+** even on compressed video and social media screenshots.
+Unlike basic OCR scripts that require constant internet access or multi-gigabyte models, UniOCR packages both **deep detection (CRAFT)** and **character recognition (CRNN)** into a **single, portable model file** with an intelligent **hybrid vocabulary correction layer** that brings word accuracy to **93–95%+** even on compressed video and social media screenshots.
 
 ---
 
@@ -26,7 +26,7 @@ Unlike basic OCR scripts that require active internet connections or multi-gigab
 
 - **Single All-in-One Model File (`ocr_universal_model.pth`)**:
   - Encapsulates text detector and character recognizer into a single ~140 MB file.
-  - Runs **100% offline** with zero runtime downloads or external API keys.
+  - Runs **100% offline** with zero runtime downloads or external API dependencies.
 - **Adaptive Dual-Mode Preprocessing**:
   - Automatically switches between **Otsu binarization** for tiny low-res bitmap glyphs (e.g. 8px font) and **natural sub-pixel RGB gradients** for dense document scans and mobile screenshots.
 - **Option C Contextual Vocabulary Corrector**:
@@ -46,16 +46,16 @@ Unlike basic OCR scripts that require active internet connections or multi-gigab
 
 ```mermaid
 flowchart LR
-    A[Input Image / PDF] --> B{Size & Format Check}
-    B -- Tiny Glyph <=300px --► C[Otsu Binarization & Inversion]
-    B -- Standard Image / PDF --► D[Raw Subpixel RGB Gradients]
-    C --> E[CRAFT Text Detection]
+    A["Input Image / PDF"] --> B{"Size & Format Check"}
+    B -->|"Tiny Glyph (&le; 300px)"| C["Otsu Binarization & Inversion"]
+    B -->|"Standard Document / PDF"| D["Raw Subpixel RGB Gradients"]
+    C --> E["CRAFT Text Detection"]
     D --> E
-    E --> F[CRNN Text Recognition]
-    F --> G[Spatial Reading-Order Sorter]
-    G --> H[Option C Contextual Corrector]
-    H --> I[Clean Formatted Output]
-    I --> J[Web Dashboard / REST API]
+    E --> F["CRNN Text Recognition"]
+    F --> G["Spatial Reading-Order Sorter"]
+    G --> H["Option C Contextual Corrector"]
+    H --> I["Clean Formatted Output"]
+    I --> J["Web Dashboard / REST API"]
 ```
 
 ---
@@ -80,8 +80,8 @@ Evaluated on real-world compressed mobile video screenshots (*1080 &times; 2340*
 Clone the repository and install dependencies:
 
 ```bash
-git clone https://github.com/your-username/universal-ai-ocr.git
-cd universal-ai-ocr
+git clone https://github.com/akhawattushar/UniOCR.git
+cd UniOCR
 pip install -r requirements.txt
 ```
 
@@ -153,13 +153,13 @@ The server exposes standard REST endpoints for easy integration with frontend ap
 
 ```bash
 curl -X POST "http://localhost:8000/ocr" \
-     -F "file=@Screenshot_20261010-072411_Instagram.jpg"
+     -F "file=@sample.png"
 ```
 
 **JSON Response**:
 ```json
 {
-  "filename": "Screenshot_20261010-072411_Instagram.jpg",
+  "filename": "sample.png",
   "extracted_text": "B.Tech CSE | AI/ML Engineer\nPython\nMachine Learning | Generative AI...",
   "details": [
     {"text": "B.Tech CSE | AI/ML Engineer", "confidence": 63.7},
@@ -170,7 +170,7 @@ curl -X POST "http://localhost:8000/ocr" \
 
 ---
 
-## Model Packaging & GitHub Deployment
+## Model Packaging & Distribution
 
 ### Model Checkpoint Information
 
@@ -186,7 +186,6 @@ GitHub enforces a hard **100 MB limit** per file on standard git commits. Becaus
 1. **Standard Push (Default `.gitignore`)**:
    - The repository includes a `.gitignore` that excludes `models/*.pth` so your code pushes cleanly without exceeding GitHub limits.
 2. **Distributing the Model (Recommended)**:
-   - Push your code to GitHub.
    - Go to your repository &rarr; **Releases** &rarr; **Draft a new release**.
    - Attach `ocr_universal_model.pth` as a release asset (GitHub allows up to **2 GB** for release assets for free).
 3. **Alternative (Git LFS)**:
@@ -204,6 +203,7 @@ GitHub enforces a hard **100 MB limit** per file on standard git commits. Becaus
 ## Project Structure
 
 ```text
+UniOCR/
 ├── index.html            # Professional enterprise web dashboard
 ├── model.py              # Core OCR pipeline, Option C corrector & FastAPI server
 ├── requirements.txt      # Python dependencies
