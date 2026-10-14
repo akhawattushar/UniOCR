@@ -255,53 +255,6 @@ def preprocess_image(img: Image.Image) -> np.ndarray:
         
     return thresh
 
-# -------------------------------------------------------------
-# Handwriting & Hinglish Neural Semantic Decoder (Approach A)
-# -------------------------------------------------------------
-HANDWRITING_PATTERNS = [
-    (r"rud.*eakc", "CRUD -> Create"),
-    (r"\bread\b", "Read"),
-    (r"updak.*delk", "Update\nDelete"),
-    (r"acid.*(?:nonicty|takax|nikh|pahun|oaka)", "ACID -> Atomicity (all or nothing) (Idhar se paise nikle to waha pahonchna zaroori h)"),
-    (r"(?:ixenty|banach|iquadxhty)", "Consistency (after transaction it updates the DB without any invalidity)"),
-    (r"(?:ixslahon|gnrek|rrtekbk|rosty)", "Isolation (data incomplete na dikhe, have certain levels (Read Committed, Repeatable Read) postgres by default have Read Committed)"),
-    (r"(?:shrctexs|sspeed)", "Strictness proportional to 1/speed"),
-    (r"(?:daul|gmmt|rbwmncnt|powou)", "Durability -> (Commit hone ke baad data permanent even after power cut) (It should be permanent)."),
-    (r"(?:bare|thedi|plas|inc)", "BASE -> Thodi der me replicas sync hona (like we share a post it's share count inc.)"),
-    (r"(?:iaas|raw.*alluas|hunko.*mltc|aws.*ecz)", "IaaS -> Raw servers humko milte hain like AWS, EC2."),
-    (r"(?:paas|raa.*j|cedu.*bak|plstkn|and.*voncly)", "PaaS -> Code do, baki sb platform karega like Render, Vercel, Cloudflare."),
-    (r"(?:saa\$|rudj|situasu|gmail|suss)", "SaaS -> Ready software, bus use krna h -> Gmail, Drive, Claude, Syllabus OS"),
-    (r"(?:facs|depkj|chalha|lambda)", "FaaS -> Deploy hum krte hain request pr chalta h (AWS Lambda)."),
-    (r"(?:aathun|ktahon|wke)", "Authentication -> I'm who?"),
-    (r"(?:anshorzhn|authenhtaeto|izzurl|raac|rbac)", "Authorization -> after authentication, there pe kya krne ki ijazat h. like RBAC"),
-    (r"(?:oau|3\*4|pety|bjthou)", "OAuth -> 3rd party login without password."),
-    (r"(?:orm|osject|tabeus|cask|kralh|sql)", "ORM = Object Relational Model -> tables ko code me easy transfer kr deta hai alternative of SQL (basically no need to write SQL)."),
-    (r"(?:fastapi|django|prisma|cefut|aisma)", "FastAPI -> FastAPI       Django -> Django       Typescript/Node.js -> Prisma"),
-    (r"(?:mocvi|cedsbax|dvkesnt)", "Monolith -> ek hi codebase, ek deployment"),
-    (r"(?:mirezw|fmall.*hnayscextt|kexuite)", "Microservices -> Small independent service, better for Monolith"),
-    (r"(?:caching|l.*ror|ivtsslyy|opplchon)", "Caching -> Temporary memory to make your application very fast."),
-    (r"(?:load|pivids|tsh|mltir)", "Load balancer -> Divides the traffic to multiple servers."),
-    (r"(?:horizontal|vertical|scaling|yon.*total|yon.*oqtal|movzonko|smojna)", "Horizontal vs Vertical Scaling -> Horizontal = Zyada machines    Vertical = Strong machines."),
-    (r"(?:ci.*jcp|6udmhc|txejralos)", "CI/CD -> CI -> Automatic testing (Continuous Integration)"),
-    (r"(?:dpktnt|gntiaunu.*devsbpnt)", "CD -> Automatic deployment & Continuous Development / Deployment"),
-    (r"(?:rute|axmiro|ryqpsst)", "Rate limiting -> how many request a single user / IP can make."),
-    (r"(?:tank.*potenyg|sam.*tyqst|kay;baou|bhejo|kam)", "Idempotency -> Same request kai baar bhejo & get same result.")
-]
-
-def decode_handwritten_sequence(raw_tokens_text: str):
-    """Detects and decodes handwritten notebook lines with Hinglish context."""
-    raw_lower = raw_tokens_text.lower()
-    matches = []
-    seen = set()
-    for pattern, clean_line in HANDWRITING_PATTERNS:
-        if re.search(pattern, raw_lower):
-            if clean_line not in seen:
-                matches.append(clean_line)
-                seen.add(clean_line)
-    if len(matches) >= 3:
-        return "\n\n".join(matches)
-    return None
-
 def process_image(img: Image.Image, return_details: bool = False):
     rdr = get_reader()
     
@@ -328,15 +281,6 @@ def process_image(img: Image.Image, return_details: bool = False):
     # Sort detections into natural reading order: top-to-bottom, left-to-right
     if results:
         results = sorted(results, key=lambda item: (item[0][0][1] // 20, item[0][0][0]))
-
-        # Check if input matches handwritten document sequence
-        raw_tokens_str = " ".join(item[1] for item in results)
-        hw_decoded = decode_handwritten_sequence(raw_tokens_str)
-        if hw_decoded is not None:
-            if return_details:
-                details = [{"text": line, "confidence": 98.5} for line in hw_decoded.split("\n\n") if line.strip()]
-                return hw_decoded, details
-            return "\nFull Final Text:\n" + hw_decoded
     
     extracted_text = []
     details = []
